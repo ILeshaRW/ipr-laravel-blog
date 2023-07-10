@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  mailhog:
+    image: mailhog/mailhog
+    tty: true
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    restart: on-failure
+    networks:
+      - network
+  database:
+    image: 'postgres:14-alpine'
+    container_name: ipr-db
+    ports:
+      - '${DBPORT}:5432'
+    environment:
+      PGPASSWORD: '${DBROOTPASS}'
+      POSTGRES_DB: '${DBNAME}'
+      POSTGRES_USER: '${DBUSER}'
+      POSTGRES_PASSWORD: '${DBPASS}'
+    volumes:
+      - db-vol:/var/lib/postgresql/data
+    networks:
+      - network
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'pg_isready',
+          '-q',
+          '-d',
+          '${DBNAME}',
+          '-U',
+          '${DBUSER}',
+        ]
+      retries: 3
+      timeout: 5s
+
+  php-fpm:
+    build:
+      args:
+        WWWGROUP: ${GROUP}
+        WWWGID: ${GID}
+        WWWUSER: ${USER}
+        WWWUID: ${UID}
+        user: ${USER}
+        uid: ${UID}
+      context: ../
+      dockerfile: ./docker/php/Dockerfile
+      target: develop
+    image: ipr
+    container_name: ipr-php-fpm
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      WWWUSER: '${USER}'
+      WWWUID: ${UID}
+      PHP_IDE_CONFIG: 'serverName=ipr.local'
+    volumes:
+      - ./../:/var/www/html
+    networks:
+      - network
+    depends_on:
+      - database
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: ipr-nginx
+    restart: unless-stopped
+    environment:
+      - NGINX_HOST=${HOST}
+      - NGINX_PORT=${PORT}
+    ports:
+      - "${PORT}:80"
+    volumes:
+      - ./../:/var/www/html
+      - ./nginx/logs:/var/log/nginx
+      - ./nginx/templates:/etc/nginx/templates
+    networks:
+      - network
+    depends_on:
+      - php-fpm
+
+networks:
+  network:
+    driver: bridge
+    name: ipr-network
+
+volumes:
+  db-vol:
+    driver: local
+    name: ipr-db-vol

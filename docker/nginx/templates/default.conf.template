@@ -1,0 +1,31 @@
+server {
+    listen 80;
+    index index.php;
+    error_log  /var/log/nginx/${NGINX_HOST}-error.log;
+    access_log /var/log/nginx/${NGINX_HOST}-access.log;
+    root /var/www/html/public;
+    server_name ${NGINX_HOST};
+    add_header Access-Control-Allow-Credentials true;
+    add_header Access-Control-Allow-Origin http://localhost:3030 always;
+    add_header Access-Control-Allow-Methods 'GET, POST, PUT, PATCH, DELETE';
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_read_timeout 180s;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php-fpm:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+        gzip_static on;
+    }
+    location ~* \.(js|css|png|jpg|jpeg|webp|gif|ico|svg|pdf|woff|ttf|swf|woff2|eot|xml|xls|docx|xlsx|doc|txt|htm|html)(\?.*|)$ {
+        expires       30d;
+        access_log    off;
+        log_not_found on;
+        try_files $uri =404;
+    }
+}
