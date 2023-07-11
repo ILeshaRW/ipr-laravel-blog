@@ -26,6 +26,9 @@ shell: ## Вход в командную строку контейнера
 migration: ## Создание миграций
 	@COMPOSE_INTERACTIVE_NO_CLI=1 '${DOCKER_COMPOSE}' exec php-fpm sh -c 'php artisan make:migration'
 
+migration-refresh: ## Обновление базы данных
+	@COMPOSE_INTERACTIVE_NO_CLI=1 '${DOCKER_COMPOSE}' exec php-fpm sh -c 'php artisan migrate:refresh --seed'
+
 migrate: ## Запуск миграций
 	@COMPOSE_INTERACTIVE_NO_CLI=1 '${DOCKER_COMPOSE}' exec php-fpm sh -c 'php artisan migrate'
 
