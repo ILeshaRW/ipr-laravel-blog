@@ -1,0 +1,19 @@
+openapi: 3.0.3
+info:
+  title: Laravel IPR
+  description: Laravel IPR
+  version: 1.0.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+servers:
+  - url: 'http://localhost:80'
+paths:
+  /api/sanctum/token/:
+    $ref: "./sanctum.yaml#/token"
+  /api/user/:
+    $ref: "./sanctum.yaml#/user"
+  /api/logout/:
+    $ref: "./sanctum.yaml#/logout"

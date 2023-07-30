@@ -83,6 +83,16 @@ services:
     depends_on:
       - php-fpm
 
+  swagger:
+      image: swaggerapi/swagger-ui
+      environment:
+          BASE_URL: /swagger
+          URLS: '[ { name: "swagger", url: "/swagger/docs/main.yaml"} ]'
+      volumes:
+          - ./../swagger:/usr/share/nginx/html/docs
+      networks:
+          - network
+
 networks:
   network:
     driver: bridge

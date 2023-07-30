@@ -28,4 +28,11 @@ server {
         log_not_found on;
         try_files $uri =404;
     }
+     location ^~ /swagger/ {
+            resolver 127.0.0.11;
+            set $swagger_upstream swagger:8080;
+
+            proxy_pass http://$swagger_upstream;
+            proxy_set_header Host $host;
+     }
 }
