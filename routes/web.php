@@ -18,6 +18,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('posts', function () {
+   return view('blog.posts');
+});
+Route::get('post/detail', function () {
+    return view('blog.post');
+})->name('post');
+
 Route::middleware('guest')->group(function () {
     Route::get('login', [UserController::class, 'loginView'])->name('login');
     Route::post('login', [UserController::class, 'authenticate']);
