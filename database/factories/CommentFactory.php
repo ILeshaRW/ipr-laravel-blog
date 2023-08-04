@@ -18,7 +18,6 @@ class CommentFactory extends Factory
         return [
             'comment' => fake()->text(),
             'post_id' => Post::inRandomOrder()->first()->id,
-            'user_id' => User::inRandomOrder()->first()->id,
         ];
     }
 }

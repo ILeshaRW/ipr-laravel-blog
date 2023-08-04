@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\AuthRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -59,16 +60,11 @@ class UserController extends Controller
     /**
      * Аутентификация пользователя
      *
-     * @param Request $request
+     * @param AuthRequest $request
      * @return RedirectResponse
      */
-    public function authenticate(Request $request): RedirectResponse
+    public function authenticate(AuthRequest $request): RedirectResponse
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
