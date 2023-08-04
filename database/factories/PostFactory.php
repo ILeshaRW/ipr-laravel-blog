@@ -17,7 +17,7 @@ class PostFactory extends Factory
         return [
             'text' => fake()->text(),
             'preview_text' => fake()->text(300),
-            'title' => fake()->title(),
+            'title' => fake()->sentence(5),
             'user_id' => User::inRandomOrder()->first()->id,
         ];
     }

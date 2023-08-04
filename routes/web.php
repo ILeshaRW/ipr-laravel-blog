@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Blog\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,12 +19,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('posts', function () {
-   return view('blog.posts');
-});
-Route::get('post/detail', function () {
-    return view('blog.post');
-})->name('post');
+Route::get('post/{postId}', [PostController::class, 'getPostDetail'])->name('post');
+Route::get('posts', [PostController::class, 'getPosts']);
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [UserController::class, 'loginView'])->name('login');
