@@ -1,0 +1,50 @@
+token:
+  post:
+    summary: "Получение токена"
+    operationId: "getToken"
+    tags:
+      - "Sanctum"
+    parameters:
+      - name: email
+        in: query
+        description: ""
+      - name: password
+        in: query
+        description: ""
+    responses:
+      200:
+        description: "ok"
+        content:
+          applications/json:
+            example: {
+              "errors": null
+            }
+user:
+  get:
+    security:
+      - bearerAuth: [ ]
+    summary: "Получение пользователя"
+    operationId: "getUser"
+    tags:
+      - "Sanctum"
+    responses:
+      200:
+        description: "ok"
+        content:
+          applications/json:
+            example: {
+                "id": 1
+            }
+logout:
+  get:
+    security:
+      - bearerAuth: [ ]
+    summary: "Отзыв токена пользователя"
+    operationId: "deleteToken"
+    tags:
+      - "Sanctum"
+    responses:
+      200:
+        description: "ok"
+
+
