@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Blog\CommentController;
 use App\Http\Controllers\Blog\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,10 @@ Route::get('/', function () {
 
 Route::get('post/{postId}', [PostController::class, 'getPostDetail'])->name('post');
 Route::get('posts', [PostController::class, 'getPosts']);
+
+Route::middleware('auth')->group(function () {
+    Route::put('post/comment', [CommentController::class, 'createComment'])->name('create_comment');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [UserController::class, 'loginView'])->name('login');

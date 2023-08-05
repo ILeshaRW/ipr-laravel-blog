@@ -18,13 +18,18 @@
         </div>
     @endforeach
 
-    <form action="" class="mb-5 tm-comment-form">
-        <h2 class="tm-color-primary tm-post-title mb-4">Ваш комментарий</h2>
-        <div class="mb-4">
-            <textarea class="form-control" name="message" rows="6"></textarea>
-        </div>
-        <div class="text-right">
-            <button class="tm-btn tm-btn-primary tm-btn-small">Отправить</button>
-        </div>
-    </form>
+    @auth
+        <form action="{{ route('create_comment') }}" method="POST" class="mb-5 tm-comment-form">
+            @method('PUT')
+            @csrf
+            <h2 class="tm-color-primary tm-post-title mb-4">Ваш комментарий</h2>
+            <div class="mb-4">
+                <textarea class="form-control" name="comment" rows="8"></textarea>
+            </div>
+            <div class="text-right">
+                <button class="tm-btn tm-btn-primary tm-btn-small">Отправить</button>
+            </div>
+            <input type="hidden" name="post_id" value="{{ $comment->post_id }}">
+        </form>
+    @endauth
 </div>
