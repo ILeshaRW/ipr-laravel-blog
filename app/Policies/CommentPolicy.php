@@ -15,6 +15,6 @@ class CommentPolicy
     public function delete(?User $user, Comment $comment): bool
     {
         return (optional($user)->id === $comment->user_id)
-            || ($comment->post()->user_id === optional($user)->id);
+            || ($comment->post->user_id === optional($user)->id);
     }
 }

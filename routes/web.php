@@ -25,6 +25,10 @@ Route::get('posts', [PostController::class, 'getPosts']);
 
 Route::middleware('auth')->group(function () {
     Route::put('post/comment', [CommentController::class, 'createComment'])->name('create_comment');
+    Route::post('post/comment/{comment}', [CommentController::class, 'updateComment'])->name('update_comment');
+    Route::delete('post/comment/{comment}', [CommentController::class, 'deleteComment'])
+        ->name('delete_comment')
+        ->middleware('can:delete,comment');;
 });
 
 Route::middleware('guest')->group(function () {

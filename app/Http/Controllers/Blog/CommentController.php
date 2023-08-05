@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Blog;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Blog\UpdateCommentRequest;
 use App\Http\Requests\Blog\CreateCommentRequest;
 use App\Models\Comment;
 use Illuminate\Http\RedirectResponse;
@@ -24,5 +25,31 @@ class CommentController extends Controller
         Comment::create($request->all());
 
         return redirect()->route('post', ['postId' => $request->post_id]);
+    }
+
+    /**
+     * @param UpdateCommentRequest $request
+     * @param Comment $comment
+     * @return RedirectResponse
+     * @throws \Throwable
+     */
+    public function updateComment(UpdateCommentRequest $request, Comment $comment): RedirectResponse
+    {
+        $comment->updateOrFail([
+            'comment' => $request->commentText,
+        ]);
+
+        return redirect()->route('post', ['postId' => $comment->post_id]);
+    }
+
+    /**
+     * @param Comment $comment
+     * @return RedirectResponse
+     */
+    public function deleteComment(Comment $comment): RedirectResponse
+    {
+        $comment->delete();
+
+        return redirect()->route('post', ['postId' => $comment->post_id]);
     }
 }
