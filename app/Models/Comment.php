@@ -14,6 +14,11 @@ class Comment extends Model
     use HasFactory;
 
     /**
+     * @var array
+     */
+    protected $guarded = [];
+
+    /**
      * Пост к которому относится комментарий
      *
      * @return BelongsTo
