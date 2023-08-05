@@ -14,6 +14,35 @@
                 <div class="d-flex justify-content-between">
                     <span class="tm-color-primary">{{ $comment->created_at }}</span>
                 </div>
+                @can('update', $comment)
+                    <div data-edit-comment-id="{{ $comment->id }}">Редактировать</div>
+                    <form
+                        action="{{ route('update_comment', ['comment' => $comment->id]) }}"
+                        method="POST"
+                        style="display: none"
+                        id="edit_comment_{{ $comment->id }}"
+                    >
+                        @csrf
+                        <h2 class="tm-color-primary tm-post-title mb-4">Редактировать комментарий</h2>
+                        <div class="mb-4">
+                            <textarea class="form-control" name="commentText" rows="8">{{ $comment->comment }}</textarea>
+                        </div>
+                        <div class="text-right">
+                            <button class="tm-btn tm-btn-primary tm-btn-small">Отправить</button>
+                        </div>
+
+                    </form>
+                @endcan
+                @can('delete', $comment)
+                    <form
+                        action="{{ route('delete_comment', ['comment' => $comment->id]) }}"
+                        method="POST"
+                    >
+                        @method('DELETE')
+                        @csrf
+                        <input type="submit" value="Удалить">
+                    </form>
+                @endcan
             </div>
         </div>
     @endforeach
@@ -33,3 +62,8 @@
         </form>
     @endauth
 </div>
+@once
+    @push('scripts')
+        <script src="{{ asset("js/comment.js") }}"></script>
+    @endpush
+@endonce
