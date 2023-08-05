@@ -1,4 +1,11 @@
 <div>
+    @if ($errors->any())
+        @foreach ($errors->all() as $error)
+            <div class="mb-4">
+                <span class="text-danger">{{ $error }}</span>
+            </div>
+        @endforeach
+    @endif
     <h2 class="tm-color-primary tm-post-title">Комментарии</h2>
     <hr class="tm-hr-primary tm-mb-45">
 
