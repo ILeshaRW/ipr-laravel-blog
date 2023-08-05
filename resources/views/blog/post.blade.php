@@ -15,7 +15,7 @@
                 </div>
 
                 <!-- Comments -->
-                <x-comments :comments="$post->comments"/>
+                <x-comments :comments="$post->comments" :postId="$post->id"/>
             </div>
         </div>
 @endsection

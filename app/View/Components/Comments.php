@@ -9,15 +9,15 @@ use Illuminate\View\Component;
 
 class Comments extends Component
 {
-    public Collection $comments;
-
     /**
      * Create a new component instance.
+     * @param Collection|null $comments
+     * @param int $postId
      */
-    public function __construct(Collection $comments)
-    {
-        $this->comments = $comments;
-    }
+    public function __construct(
+        public ?Collection $comments,
+        public int $postId
+    ){}
 
     /**
      * Get the view / contents that represent the component.
