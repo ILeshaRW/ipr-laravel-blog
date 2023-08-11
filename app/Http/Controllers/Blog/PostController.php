@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Blog;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Blog\Post\CreatePostRequest;
+use App\Http\Requests\Blog\Post\EditPostRequest;
 use App\Models\Post;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -84,10 +85,20 @@ class PostController extends Controller
      * Страница для редактирования поста
      *
      * @param Post $post
+     * @param EditPostRequest $request
      * @return RedirectResponse
      */
-    public function editPost(Post $post): RedirectResponse
+    public function editPost(Post $post, EditPostRequest $request): RedirectResponse
     {
+        $post->update($request->validated());
+
         return redirect()->route('edit_post_page', ['post' => $post->id]);
+    }
+
+    public function deletePost(Post $post): RedirectResponse
+    {
+        $post->delete();
+
+        return redirect()->route('posts');
     }
 }

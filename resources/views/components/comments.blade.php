@@ -9,7 +9,7 @@
     <h2 class="tm-color-primary tm-post-title">Комментарии</h2>
     <hr class="tm-hr-primary tm-mb-45">
 
-    @foreach($comments as $comment)
+    @foreach($post->comments as $comment)
         <div class="tm-comment tm-mb-45">
             <figure class="tm-comment-figure">
                 <figcaption class="tm-color-primary text-center">{{ $comment->user->name }}</figcaption>
@@ -65,7 +65,7 @@
             <div class="text-right">
                 <button class="tm-btn tm-btn-primary tm-btn-small">Отправить</button>
             </div>
-            <input type="hidden" name="post_id" value="{{ $comment->post_id }}">
+            <input type="hidden" name="post_id" value="{{ $post->id }}">
         </form>
     @endauth
 </div>
