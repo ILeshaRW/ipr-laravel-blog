@@ -30,12 +30,17 @@ Route::middleware('auth')->group(function () {
 
     Route::get('post/create', [PostController::class, 'createPostPage'])->name('create_post_page');
     Route::put('post/create', [PostController::class, 'createPost'])->name('create_post');
-    Route::get('post/edit/{post}', [PostController::class, 'editPostPage'])->name('edit_post_page');
-    Route::post('post/edit/{post}', [PostController::class, 'editPost'])->name('edit_post');
+
+    Route::get('post/edit/{post}', [PostController::class, 'editPostPage'])->name('edit_post_page')
+        ->middleware('can:update,post');;
+    Route::post('post/edit/{post}', [PostController::class, 'editPost'])->name('edit_post')
+        ->middleware('can:update,post');;;
+    Route::delete('post/edit/{post}', [PostController::class, 'deletePost'])->name('delete_post')
+        ->middleware('can:delete,post');;;
 });
 
 Route::get('post/{postId}', [PostController::class, 'getPostDetail'])->name('post');
-Route::get('posts', [PostController::class, 'getPosts']);
+Route::get('posts', [PostController::class, 'getPosts'])->name('posts');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [UserController::class, 'loginView'])->name('login');

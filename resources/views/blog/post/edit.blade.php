@@ -22,4 +22,11 @@
             <button class="col-12 btn-primary" type="submit"> Редактировать </button>
         </div>
     </form>
+    @can('delete', $post)
+        <form method="POST" action="{{ route('delete_post', ['post' => $post->id]) }}">
+            @csrf
+            @method('DELETE')
+            <button class="btn-danger col-12" type="submit">Удалить пост</button>
+        </form>
+    @endcan
 @endsection
