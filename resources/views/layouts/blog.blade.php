@@ -21,11 +21,19 @@
         </div>
         <nav class="tm-nav" id="tm-nav">
             <ul>
-                <li class="tm-nav-item active"><a href="index.html" class="tm-nav-link">
+                <li class="tm-nav-item active"><a href="/posts" class="tm-nav-link">
                         <i class="fas fa-home"></i>
                         Главная
                     </a>
                 </li>
+                @auth
+                    <li class="tm-nav-item">
+                        <a href="{{ route('create_post_page') }}" class="tm-nav-link">
+                            <i class="fas fa-pen"></i>
+                            Написать пост
+                        </a>
+                    </li>
+                @endauth
             </ul>
         </nav>
         <div class="tm-mb-65">

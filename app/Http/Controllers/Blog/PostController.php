@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Blog;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Blog\Post\CreatePostRequest;
 use App\Models\Post;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * Контроллер постов
@@ -39,5 +41,53 @@ class PostController extends Controller
             ->findOrFail($postId);
 
         return view('blog.post', ['post' => $post]);
+    }
+
+    /**
+     * Страница для создания поста
+     *
+     * @return View
+     */
+    public function createPostPage(): View
+    {
+        return view('blog.post.create');
+    }
+
+    /**
+     * Страница для редактирования поста
+     *
+     * @param Post $post
+     * @return View
+     */
+    public function editPostPage(Post $post): View
+    {
+        return view('blog.post.edit', ['post' => $post]);
+    }
+
+    /**
+     * Создание поста
+     *
+     * @param CreatePostRequest $request
+     * @return RedirectResponse
+     */
+    public function createPost(CreatePostRequest $request): RedirectResponse
+    {
+        $post = $request->validated();
+        $post['user_id'] = $request->user()->id;
+
+        $post = Post::create($post);
+
+        return redirect()->route('edit_post_page', ['post' => $post->id]);
+    }
+
+    /**
+     * Страница для редактирования поста
+     *
+     * @param Post $post
+     * @return RedirectResponse
+     */
+    public function editPost(Post $post): RedirectResponse
+    {
+        return redirect()->route('edit_post_page', ['post' => $post->id]);
     }
 }
