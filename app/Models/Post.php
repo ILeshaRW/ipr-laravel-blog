@@ -15,6 +15,11 @@ class Post extends Model
     use HasFactory;
 
     /**
+     * @var array
+     */
+    protected $guarded = [];
+
+    /**
      * Комментарии к посту
      *
      * @return HasMany
