@@ -32,11 +32,12 @@ Route::middleware('auth')->group(function () {
     Route::put('post/create', [PostController::class, 'createPost'])->name('create_post');
 
     Route::get('post/edit/{post}', [PostController::class, 'editPostPage'])->name('edit_post_page')
-        ->middleware('can:update,post');;
+        ->middleware('can:update,post');
     Route::post('post/edit/{post}', [PostController::class, 'editPost'])->name('edit_post')
-        ->middleware('can:update,post');;;
+        ->middleware('can:update,post');
     Route::delete('post/edit/{post}', [PostController::class, 'deletePost'])->name('delete_post')
-        ->middleware('can:delete,post');;;
+        ->middleware('can:delete,post');
+    Route::get('posts/my', [PostController::class, 'getMyPosts'])->name('posts.my');
 });
 
 Route::get('post/{postId}', [PostController::class, 'getPostDetail'])->name('post');

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Blog\Post\CreatePostRequest;
 use App\Http\Requests\Blog\Post\EditPostRequest;
 use App\Models\Post;
+use App\Repositories\Blog\PostRepository;
+use Auth;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -14,6 +16,11 @@ use Illuminate\Http\RedirectResponse;
  */
 class PostController extends Controller
 {
+
+    public function __construct(
+       protected PostRepository $repository
+    ){}
+
     /**
      * Получение постов с пагинацией
      *
@@ -21,12 +28,19 @@ class PostController extends Controller
      */
     public function getPosts(): View
     {
-        $posts = Post::addSelect(
-            ['id', 'created_at', 'user_id', 'preview_text', 'title']
-        )
-            ->orderBy('created_at')
-            ->active()
-            ->paginate(10);
+        $posts = $this->repository->getAllPostPagination();
+
+        return view('blog.posts', ['posts' => $posts]);
+    }
+
+    /**
+     * Получение постов пользователя
+     *
+     * @return View
+     */
+    public function getMyPosts(): View
+    {
+        $posts = $this->repository->getPostByUserId(Auth::id());
 
         return view('blog.posts', ['posts' => $posts]);
     }

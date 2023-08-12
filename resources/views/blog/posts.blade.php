@@ -3,7 +3,15 @@
 @section('title', 'Блог')
 
 @section('content')
+    @if(!Route::is('posts.my'))
+        <a class="tm-pt-30 tm-color-primary" href="{{ route('posts.my') }}">Мои посты</a>
+    @else
+        <a class="tm-pt-30 tm-color-primary" href="{{ route('posts') }}">Все посты</a>
+    @endif
     <div class="row tm-row">
+        @if ($posts->count() === 0)
+            <span class="tm-pt-30 tm-color-primary ">Тут пока ничего нет</span>
+        @endif
         @foreach($posts as $post)
             <article class="col-12 col-md-6 tm-post">
                 <hr class="tm-hr-primary">
