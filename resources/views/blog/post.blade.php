@@ -13,7 +13,7 @@
                             <i title="Редактировать" class="fa fa-edit"></i>
                         </a>
                     @endcan
-                    <p class="tm-mb-40">{{ $post->created_at }} Автор {{ $post->user->name }}</p>
+                    <p class="tm-mb-40">{{ $post->created_at }} Автор {{ $post->user->full_name }}</p>
                     <p>
                         {{$post->text}}
                     </p>

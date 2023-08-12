@@ -12,7 +12,7 @@
     @foreach($post->comments as $comment)
         <div class="tm-comment tm-mb-45">
             <figure class="tm-comment-figure">
-                <figcaption class="tm-color-primary text-center">{{ $comment->user->name }}</figcaption>
+                <figcaption class="tm-color-primary text-center">{{ $comment->user->full_name }}</figcaption>
             </figure>
             <div>
                 <p>
