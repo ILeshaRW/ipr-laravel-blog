@@ -25,6 +25,7 @@ class PostController extends Controller
             ['id', 'created_at', 'user_id', 'preview_text', 'title']
         )
             ->orderBy('created_at')
+            ->active()
             ->paginate(10);
 
         return view('blog.posts', ['posts' => $posts]);
@@ -39,6 +40,7 @@ class PostController extends Controller
     public function getPostDetail(int $postId): View
     {
         $post = Post::addSelect(['id', 'created_at', 'user_id', 'text', 'title'])
+            ->active()
             ->findOrFail($postId);
 
         return view('blog.post', ['post' => $post]);
