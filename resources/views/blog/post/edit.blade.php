@@ -24,9 +24,11 @@
     </form>
     @can('delete', $post)
         <form method="POST" action="{{ route('delete_post', ['post' => $post->id]) }}">
-            @csrf
-            @method('DELETE')
-            <button class="btn-danger col-12" type="submit">Удалить пост</button>
+            <div class="row tm-row">
+                @csrf
+                @method('DELETE')
+                <button class="btn-danger col-12" type="submit">Удалить пост</button>
+            </div>
         </form>
     @endcan
 @endsection
