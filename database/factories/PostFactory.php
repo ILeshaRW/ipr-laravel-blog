@@ -21,4 +21,13 @@ class PostFactory extends Factory
             'user_id' => User::inRandomOrder()->first()->id,
         ];
     }
+
+    public function noActive(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'active' => false
+            ];
+        });
+    }
 }
