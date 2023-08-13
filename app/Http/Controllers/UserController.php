@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\AuthRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -35,12 +35,14 @@ class UserController extends Controller
      */
     public function create(RegisterRequest $request): RedirectResponse
     {
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        event(new Registered($user));
 
         return redirect()
             ->route('login');
