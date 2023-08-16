@@ -24,15 +24,32 @@ class PostRepository implements IPostRepository
 
     /**
      * @param int $userId
+     * @param bool $isActive
      * @return LengthAwarePaginator
      */
-    public function getPostByUserId(int $userId): LengthAwarePaginator
+    public function getPostByUserId(int $userId, bool $isActive = false): LengthAwarePaginator
     {
-        return Post::addSelect(
+        $query = Post::addSelect(
             ['id', 'created_at', 'user_id', 'preview_text', 'title']
         )
             ->where('user_id', $userId)
-            ->orderBy('created_at')
-            ->paginate(self::ON_PAGE);
+            ->orderBy('created_at');
+
+        if ($isActive) {
+            $query->active();
+        }
+
+        return $query->paginate(self::ON_PAGE);
+    }
+
+    /**
+     * Создать пост
+     *
+     * @param array $post
+     * @return Post
+     */
+    public function create(array $post): Post
+    {
+        return Post::create($post);
     }
 }
