@@ -52,7 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
  * |
  * |__________________
  */
-Route::get('post/{postId}', [PostController::class, 'getPostDetail'])->name('post');
+Route::get('post/{postId}', [PostController::class, 'getPostDetail'])->name('post')->where('postId', '[\d]+');
 Route::get('posts', [PostController::class, 'getPosts'])->name('posts');
 
 /*
