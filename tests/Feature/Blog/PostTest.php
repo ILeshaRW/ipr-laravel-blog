@@ -111,11 +111,25 @@ class PostTest extends TestCase
     {
         User::factory()->create();
         $post = Post::factory()->create();
-        $postArray = ['title' => 'test', 'preview_text' => 'test', 'text' => 'testtesttest'];
+        $postArray = ['title' => $post->title . '_upd', 'preview_text' => 'test', 'text' => 'testtesttest'];
 
-        $this->assertFalse($post->wasChanged());
         $this->post('post/edit/' . $post->id, $postArray)
             ->assertRedirectToRoute('login');
+
+        $this->assertFalse($post->refresh()->title === $postArray['title']);
+    }
+
+    /**
+     * Тест страницы обновления поста не авторизованным пользователем
+     */
+    public function test_create_post_auth_fail(): void
+    {
+        User::factory()->create();
+        $postArray = ['title' => 'test', 'preview_text' => 'test', 'text' => 'testtesttest'];
+
+        $this->put('post/create', $postArray)
+            ->assertRedirectToRoute('login');
+        $this->assertDatabaseCount(Post::class, 0);
     }
 
     /**
@@ -168,5 +182,58 @@ class PostTest extends TestCase
 
         $this->get('post/edit/' . Post::factory()->create()->id)
             ->assertRedirectToRoute('login');
+    }
+
+    /**
+     * Успешное удаление поста
+     *
+     * @return void
+     * @throws \JsonException
+     */
+    public function test_delete_post_successful(): void
+    {
+        $user = User::factory()->create();
+        $post = Post::factory()->create();
+        $this->actingAs($user);
+
+        $this->delete('post/edit/' . $post->id)
+            ->assertRedirectToRoute('posts')
+            ->assertSessionHasNoErrors();
+        $this->assertModelMissing($post);
+    }
+
+    /**
+     * Ошибка удаления поста для неавторизованного пользователя
+     *
+     * @return void
+     * @throws \JsonException
+     */
+    public function test_delete_post_auth_fail(): void
+    {
+        User::factory()->create();
+        $post = Post::factory()->create();
+
+        $this->delete('post/edit/' . $post->id)
+            ->assertRedirectToRoute('login')
+            ->assertSessionHasNoErrors();
+
+        $this->assertModelExists($post);
+    }
+
+    /**
+     * Ошибка при удалении чужого поста
+     *
+     * @return void
+     */
+    public function test_delete_post_another_user_fail(): void
+    {
+        User::factory()->create();
+        $post = Post::factory()->create();
+        $newUser = User::factory()->create();
+        $this->actingAs($newUser);
+
+        $this->delete('post/edit/' . $post->id)
+            ->assertStatus(403);
+        $this->assertModelExists($post);
     }
 }
