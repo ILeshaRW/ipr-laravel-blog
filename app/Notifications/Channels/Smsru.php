@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Chanells;
+namespace App\Notifications\Channels;
 
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;

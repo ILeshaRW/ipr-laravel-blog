@@ -20,7 +20,7 @@ class PostObserver
     {
         $notify = User::find(1);
 
-        $notify->notify(new PostCreated());
+        $notify->notify(new PostCreated($post));
 
     }
 }
