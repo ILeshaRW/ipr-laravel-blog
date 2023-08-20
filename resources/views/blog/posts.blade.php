@@ -26,7 +26,7 @@
                 </div>
                 <hr>
                 <div class="d-flex justify-content-between">
-                    <span>Комментарии: {{ $post->comments->count()  }}</span>
+                    <span>Комментарии: {{ $post->comments_count  }}</span>
                     <span>{{ $post->user->full_name }}</span>
                 </div>
             </article>

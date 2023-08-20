@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Repositories\Blog\PostRepository;
 use App\Services\Blog\PostService;
 use Auth;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -57,6 +58,26 @@ class PostController extends Controller
     {
         $post = Post::addSelect(['id', 'created_at', 'user_id', 'text', 'title'])
             ->active()
+            ->with(
+                [
+                    'user' => function (Builder $query) {
+                        return $query->select('id', 'name', 'last_name');
+                    },
+                    'comments' => function (Builder $query) {
+                        return $query->select(['comment', 'id', 'user_id', 'post_id', 'created_at', 'updated_at'])
+                            ->with(
+                                [
+                                    'user' => function (Builder $query) {
+                                        return $query->select(['id', 'name', 'last_name']);
+                                    },
+                                    'post' => function (Builder $query) {
+                                        return $query->select('user_id', 'id');
+                                    },
+                                ]
+                            );
+                    },
+                ]
+            )
             ->findOrFail($postId);
 
         return view('blog.post', ['post' => $post]);
