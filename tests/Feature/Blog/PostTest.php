@@ -1,10 +1,12 @@
 <?php
 
-namespace Feature\Blog;
+namespace Tests\Feature\Blog;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\PostCreated;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class PostTest extends TestCase
@@ -26,8 +28,8 @@ class PostTest extends TestCase
      */
     public function test_post_detail_successful_response(): void
     {
-        User::factory()->create();
-        Post::factory()->create();
+        User::withoutEvents(fn() => User::factory()->create());
+        Post::withoutEvents(fn() => Post::factory()->create());
 
         $response = $this->get('post/1');
 
@@ -41,6 +43,7 @@ class PostTest extends TestCase
      */
     public function test_create_post_success(): void
     {
+        Notification::fake();
         $user = User::factory()->create();
         $this->actingAs($user);
 
@@ -48,6 +51,7 @@ class PostTest extends TestCase
 
         $this->assertDatabaseCount(Post::class, 1);
         $post = Post::first();
+        Notification::assertSentTo([$user], PostCreated::class);
 
         $response->assertRedirectToRoute('edit_post_page', [$post]);
     }
@@ -56,15 +60,19 @@ class PostTest extends TestCase
      * Тест не успешного создания поста
      *
      * @return void
+     * @throws \Exception
      */
     public function test_create_post_fail(): void
     {
+        Notification::fake();
         $user = User::factory()->create();
         $this->actingAs($user);
 
         $response = $this->put('post/create', ['title' => '', 'preview_text' => '', 'text' => '']);
         $this->assertDatabaseCount(Post::class, 0);
         $response->assertSessionHasErrors(['title', 'preview_text', 'text']);
+
+        Notification::assertNotSentTo([$user], PostCreated::class);
     }
 
     /**
@@ -73,9 +81,9 @@ class PostTest extends TestCase
     public function test_update_post_success(): void
     {
         $postArray = ['title' => 'test', 'preview_text' => 'test', 'text' => 'testtesttest'];
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         $postArray['user_id'] = $user->id;
-        $post = Post::factory()->create($postArray);
+        $post = Post::withoutEvents(function () use ($postArray) { return Post::factory()->create($postArray); });
         $this->actingAs($user);
         $postArray['title'] = 'replace_title';
 
@@ -93,8 +101,8 @@ class PostTest extends TestCase
      */
     public function test_update_post_fail(): void
     {
-        $user = User::factory()->create();
-        $post = Post::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
         $this->actingAs($user);
         $postArray = ['title' => 'test', 'preview_text' => '', 'text' => 'testtesttest'];
 
@@ -109,8 +117,8 @@ class PostTest extends TestCase
      */
     public function test_update_post_auth_fail(): void
     {
-        User::factory()->create();
-        $post = Post::factory()->create();
+        User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
         $postArray = ['title' => $post->title . '_upd', 'preview_text' => 'test', 'text' => 'testtesttest'];
 
         $this->post('post/edit/' . $post->id, $postArray)
@@ -124,12 +132,15 @@ class PostTest extends TestCase
      */
     public function test_create_post_auth_fail(): void
     {
-        User::factory()->create();
+        Notification::fake();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         $postArray = ['title' => 'test', 'preview_text' => 'test', 'text' => 'testtesttest'];
 
         $this->put('post/create', $postArray)
             ->assertRedirectToRoute('login');
         $this->assertDatabaseCount(Post::class, 0);
+
+        Notification::assertNotSentTo([$user], PostCreated::class);
     }
 
     /**
@@ -139,7 +150,7 @@ class PostTest extends TestCase
      */
     public function test_create_post_successful_response(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         $this->actingAs($user);
 
         $this->get('post/create')
@@ -164,10 +175,10 @@ class PostTest extends TestCase
      */
     public function test_edit_post_successful_response(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         $this->actingAs($user);
 
-        $this->get('post/edit/' . Post::factory()->create()->id)
+        $this->get('post/edit/' . Post::withoutEvents(fn () => Post::factory()->create())->id)
             ->assertStatus(200);
     }
 
@@ -178,9 +189,9 @@ class PostTest extends TestCase
      */
     public function test_edit_post_fail_access_response(): void
     {
-        User::factory()->create();
+        User::withoutEvents(fn() => User::factory()->create());
 
-        $this->get('post/edit/' . Post::factory()->create()->id)
+        $this->get('post/edit/' . Post::withoutEvents(fn() => Post::factory()->create())->id)
             ->assertRedirectToRoute('login');
     }
 
@@ -192,8 +203,8 @@ class PostTest extends TestCase
      */
     public function test_delete_post_successful(): void
     {
-        $user = User::factory()->create();
-        $post = Post::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
         $this->actingAs($user);
 
         $this->delete('post/edit/' . $post->id)
@@ -210,8 +221,8 @@ class PostTest extends TestCase
      */
     public function test_delete_post_auth_fail(): void
     {
-        User::factory()->create();
-        $post = Post::factory()->create();
+        User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
 
         $this->delete('post/edit/' . $post->id)
             ->assertRedirectToRoute('login')
@@ -227,9 +238,9 @@ class PostTest extends TestCase
      */
     public function test_delete_post_another_user_fail(): void
     {
-        User::factory()->create();
-        $post = Post::factory()->create();
-        $newUser = User::factory()->create();
+        User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
+        $newUser = User::withoutEvents(fn() => User::factory()->create());
         $this->actingAs($newUser);
 
         $this->delete('post/edit/' . $post->id)

@@ -1,11 +1,13 @@
 <?php
 
-namespace Feature\Blog;
+namespace Tests\Feature\Blog;
 
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\PostCommented;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 /**
@@ -23,6 +25,7 @@ class CommentTest extends TestCase
      */
     public function test_create_comment_successful(): void
     {
+        Notification::fake();
         $user = User::factory()->create();
         $this->actingAs($user);
         $post = Post::factory()->create();
@@ -30,6 +33,8 @@ class CommentTest extends TestCase
         $response = $this->put('post/comment', ['post_id' => $post->id, 'comment' => 'тут коммент']);
         $response->assertRedirectToRoute('post', [$post])->assertSessionHasNoErrors();
         $this->assertTrue($post->comments()->count() === 1);
+
+        Notification::assertNotSentTo([$user], PostCommented::class);
     }
 
     /**
@@ -39,12 +44,15 @@ class CommentTest extends TestCase
      */
     public function test_create_comment_auth_fail(): void
     {
-        User::factory()->create();
+        Notification::fake();
+        $user = User::factory()->create();
         $post = Post::factory()->create();
 
         $response = $this->put('post/comment', ['post_id' => $post->id, 'comment' => 'тут коммент']);
         $response->assertRedirectToRoute('login');
         $this->assertTrue($post->comments()->count() === 0);
+
+        Notification::assertNotSentTo([$user], PostCommented::class);
     }
 
     /**
@@ -54,6 +62,7 @@ class CommentTest extends TestCase
      */
     public function test_create_comment_validation_fail(): void
     {
+        Notification::fake();
         $user = User::factory()->create();
         $this->actingAs($user);
         $post = Post::factory()->create();
@@ -61,6 +70,8 @@ class CommentTest extends TestCase
         $response = $this->put('post/comment', ['post_id' => $post->id, 'comment' => '']);
         $response->assertSessionHasErrors(['comment']);
         $this->assertTrue($post->comments()->count() === 0);
+
+        Notification::assertNotSentTo([$user], PostCommented::class);
     }
 
     /**
@@ -70,16 +81,21 @@ class CommentTest extends TestCase
      */
     public function test_update_comment_another_user_fail(): void
     {
-        $userCreator = User::factory()->create();
-        $post = Post::factory()->create();
-        $comment = Comment::factory()->create(
-            [
-                'user_id' => $userCreator->id,
-                'comment' => 'текст коммента',
-                'post_id' => $post->id,
-            ]
+        User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
+        $comment = Comment::withoutEvents(
+            function () use ($post) {
+                return Comment::factory()->create(
+                    [
+                        'user_id' => $post->user->id,
+                        'comment' => 'текст коммента',
+                        'post_id' => $post->id,
+                    ]
+                );
+            }
         );
-        $userUpd = User::factory()->create();
+
+        $userUpd = User::withoutEvents(fn() => User::factory()->create());
         $this->actingAs($userUpd);
         $newText = 'тут коммент';
 
@@ -98,14 +114,18 @@ class CommentTest extends TestCase
      */
     public function test_update_comment_successful(): void
     {
-        $userCreator = User::factory()->create();
-        $post = Post::factory()->create();
-        $comment = Comment::factory()->create(
-            [
-                'user_id' => $userCreator->id,
-                'comment' => 'текст коммента',
-                'post_id' => $post->id,
-            ]
+        $userCreator = User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
+        $comment = Comment::withoutEvents(
+            function () use ($post) {
+                return Comment::factory()->create(
+                    [
+                        'user_id' => $post->user->id,
+                        'comment' => 'текст коммента',
+                        'post_id' => $post->id,
+                    ]
+                );
+            }
         );
 
         $this->actingAs($userCreator);
@@ -125,14 +145,18 @@ class CommentTest extends TestCase
      */
     public function test_delete_comment_successful(): void
     {
-        $userCreator = User::factory()->create();
-        $post = Post::factory()->create();
-        $comment = Comment::factory()->create(
-            [
-                'user_id' => $userCreator->id,
-                'comment' => 'текст коммента',
-                'post_id' => $post->id,
-            ]
+        $userCreator = User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
+        $comment = Comment::withoutEvents(
+            function () use ($post) {
+                return Comment::factory()->create(
+                    [
+                        'user_id' => $post->user->id,
+                        'comment' => 'текст коммента',
+                        'post_id' => $post->id,
+                    ]
+                );
+            }
         );
 
         $this->actingAs($userCreator);
@@ -149,14 +173,18 @@ class CommentTest extends TestCase
      */
     public function test_delete_comment_auth_fail(): void
     {
-        $userCreator = User::factory()->create();
-        $post = Post::factory()->create();
-        $comment = Comment::factory()->create(
-            [
-                'user_id' => $userCreator->id,
-                'comment' => 'текст коммента',
-                'post_id' => $post->id,
-            ]
+        User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
+        $comment = Comment::withoutEvents(
+            function () use ($post) {
+                return Comment::factory()->create(
+                    [
+                        'user_id' => $post->user->id,
+                        'comment' => 'текст коммента',
+                        'post_id' => $post->id,
+                    ]
+                );
+            }
         );
 
         $response = $this->delete('post/comment/' . $comment->id);
@@ -171,16 +199,20 @@ class CommentTest extends TestCase
      */
     public function test_delete_comment_another_user_fail(): void
     {
-        $userCreator = User::factory()->create();
-        $post = Post::factory()->create();
-        $comment = Comment::factory()->create(
-            [
-                'user_id' => $userCreator->id,
-                'comment' => 'текст коммента',
-                'post_id' => $post->id,
-            ]
+        User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
+        $comment = Comment::withoutEvents(
+            function () use ($post) {
+                return Comment::factory()->create(
+                    [
+                        'user_id' => $post->user->id,
+                        'comment' => 'текст коммента',
+                        'post_id' => $post->id,
+                    ]
+                );
+            }
         );
-        $userDel = User::factory()->create();
+        $userDel = User::withoutEvents(fn() => User::factory()->create());
 
         $this->actingAs($userDel);
         $response = $this->delete('post/comment/' . $comment->id);
@@ -196,15 +228,18 @@ class CommentTest extends TestCase
      */
     public function test_delete_comment_post_creator_user_successful(): void
     {
-        $user = User::factory()->create();
-        $post = Post::factory()->create();
-
-        $comment = Comment::factory()->create(
-            [
-                'user_id' => User::factory()->create()->id,
-                'comment' => 'текст коммента',
-                'post_id' => $post->id,
-            ]
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $post = Post::withoutEvents(fn() => Post::factory()->create());
+        $comment = Comment::withoutEvents(
+            function () use ($post) {
+                return Comment::factory()->create(
+                    [
+                        'user_id' => User::withoutEvents(fn() => User::factory()->create()),
+                        'comment' => 'текст коммента',
+                        'post_id' => $post->id,
+                    ]
+                );
+            }
         );
 
         $this->actingAs($user);
