@@ -3,6 +3,7 @@
 use App\Http\Controllers\Blog\CommentController;
 use App\Http\Controllers\Blog\PostController;
 use App\Http\Controllers\UserController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,8 +21,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-Route::middleware('auth')->group(function () {
+/*
+ * _________________________________________________
+ * |Создание и редактирование постов и комментариев
+ * |Просмотр моих постов
+ * _________________________________________________
+ */
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('post/comment', [CommentController::class, 'createComment'])->name('create_comment');
     Route::post('post/comment/{comment}', [CommentController::class, 'updateComment'])->name('update_comment');
     Route::delete('post/comment/{comment}', [CommentController::class, 'deleteComment'])
@@ -40,9 +46,21 @@ Route::middleware('auth')->group(function () {
     Route::get('posts/my', [PostController::class, 'getMyPosts'])->name('posts.my');
 });
 
-Route::get('post/{postId}', [PostController::class, 'getPostDetail'])->name('post');
+/*
+ * ______________________
+ * | Просмотр постов
+ * |
+ * |__________________
+ */
+Route::get('post/{postId}', [PostController::class, 'getPostDetail'])->name('post')->where('postId', '[\d]+');
 Route::get('posts', [PostController::class, 'getPosts'])->name('posts');
 
+/*
+ * _____________________________
+ * | Авторизация, регистрация.
+ * |
+ * _____________________________
+ */
 Route::middleware('guest')->group(function () {
     Route::get('login', [UserController::class, 'loginView'])->name('login');
     Route::post('login', [UserController::class, 'authenticate']);
@@ -50,7 +68,29 @@ Route::middleware('guest')->group(function () {
     Route::post('register',[UserController::class, 'create'])->name('create');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('lk', [UserController::class, 'index'])->name('index');
+/*_______________________
+ *| Личный кабинет
+ *| Логаут
+ * _______________________
+ */
+Route::middleware(['auth'])->group(function () {
+    Route::get('lk', [UserController::class, 'index'])->name('index')->middleware('verified');
     Route::get('logout', [UserController::class, 'logout']);
 });
+
+/*___________________________
+ * | Верификация емайл
+ */
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+
+    return redirect('/lk');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+/*_________________________________________
+* |
+*/

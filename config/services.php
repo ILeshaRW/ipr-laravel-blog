@@ -31,4 +31,14 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'sms_ru' => [
+        'id' => env('SMS_RU_API_ID'),
+        'to' => env('SMS_RU_PHONE_TO'),
+    ],
+
+    'tg_notify' => [
+        'bot_token' => env('TG_BOT_TOKEN'),
+        'id_channel' => env('TG_ID_CHANNEL'),
+    ],
+
 ];
