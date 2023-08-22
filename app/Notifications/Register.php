@@ -3,13 +3,14 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Уведомление о регистрации
  */
-class Register extends Notification
+class Register extends Notification implements ShouldQueue
 {
     use Queueable;
 

@@ -6,10 +6,11 @@ use App\Models\Post;
 use App\Notifications\Channels\Smsru;
 use App\Notifications\Channels\Telegram;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Zelenin\SmsRu\Entity\Sms;
 
-class PostCreated extends Notification
+class PostCreated extends Notification implements ShouldQueue
 {
     use Queueable;
 

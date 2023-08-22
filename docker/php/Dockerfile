@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     libpng-dev \
     libonig-dev \
+    librabbitmq-dev \
     libpq-dev \
     libxml2-dev \
     cron \
@@ -16,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     nano \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install pgsql pdo pdo_pgsql mbstring exif pcntl bcmath gd soap \
+RUN docker-php-ext-install pgsql pdo pdo_pgsql mbstring exif pcntl bcmath gd soap sockets\
     && docker-php-ext-enable pdo_pgsql
 
 #RUN pecl install redis && docker-php-ext-enable redis
@@ -51,7 +52,7 @@ WORKDIR /var/www/html
 
 RUN chown www-data:www-data /var/www/html
 USER www-data
-RUN composer install
+#RUN composer install
 
 ARG user=www-data
 ENV USER_START=$user

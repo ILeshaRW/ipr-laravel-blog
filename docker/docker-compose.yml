@@ -93,6 +93,32 @@ services:
       networks:
           - network
 
+  redis:
+      image: redis:alpine
+      container_name: ipr-redis
+      volumes:
+          - redis-vol:/data
+      ports:
+          - "6379:6379"
+      networks:
+        - network
+
+  rabbitmq:
+      build:
+          context: ./
+          dockerfile: rabbitmq/Dockerfile
+      container_name: ipr-rabbitmq
+      environment:
+          RABBITMQ_DEFAULT_USER: 'guest'
+          RABBITMQ_DEFAULT_PASS: 'guest'
+      ports:
+          - 5672:5672
+          - 15672:15672
+      volumes:
+          - rabbitmq-data:/var/lib/rabbitmq
+      networks:
+          - network
+
 networks:
   network:
     driver: bridge
@@ -102,3 +128,9 @@ volumes:
   db-vol:
     driver: local
     name: ipr-db-vol
+  redis-vol:
+      driver: local
+      name: ipr-redis-vol
+  rabbitmq-data:
+      driver: local
+      name: ipr-rabbitmq-vol
