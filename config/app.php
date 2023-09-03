@@ -1,5 +1,6 @@
 <?php
 
+use App\LaravelQueueRabbitMQServiceProvider;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
@@ -169,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\Notifications\SmsRuServiceProvider::class,
         Bschmitt\Amqp\AmqpServiceProvider::class,
+        LaravelQueueRabbitMQServiceProvider::class,
     ])->toArray(),
 
     /*

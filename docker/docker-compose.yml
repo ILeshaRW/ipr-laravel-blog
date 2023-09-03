@@ -117,12 +117,18 @@ services:
       volumes:
           - rabbitmq-data:/var/lib/rabbitmq
       networks:
-          - network
+          network:
+              ipv4_address: 10.0.0.10
 
 networks:
   network:
     driver: bridge
     name: ipr-network
+    ipam:
+        driver: default
+        config:
+            -   subnet: 10.0.0.0/24
+                gateway: 10.0.0.1
 
 volumes:
   db-vol:
