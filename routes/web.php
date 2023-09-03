@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    //return view('welcome');
+    return redirect(\route('posts'));
 });
 
 /*
@@ -75,11 +76,12 @@ Route::middleware('guest')->group(function () {
  */
 Route::middleware(['auth'])->group(function () {
     Route::get('lk', [UserController::class, 'index'])->name('index')->middleware('verified');
-    Route::get('logout', [UserController::class, 'logout']);
+    Route::get('logout', [UserController::class, 'logout'])->name('logout');
 });
 
 /*___________________________
  * | Верификация емайл
+ * | //TODO перенести в контроллеры
  */
 Route::get('/email/verify', function () {
     return view('auth.verify-email');

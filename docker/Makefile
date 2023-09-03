@@ -38,8 +38,16 @@ seed: ## Популяция БД
 test: ## Запуск тестов
 	@COMPOSE_INTERACTIVE_NO_CLI=1 '${DOCKER_COMPOSE}' exec php-fpm sh -c 'php artisan test'
 
-composer: ##Установка пакетов композера
+composer-i: ##Установка пакетов композера
 	@'${DOCKER_COMPOSE}' exec php-fpm composer install
 
 key: ##Создание ключа приложения
 	@'${DOCKER_COMPOSE}' exec php-fpm php artisan key:generate
+
+env:
+	@if [ ! -f ./.env ]; then \
+		cp .env.example .env; \
+	fi
+	@if [ ! -f ./docker/.env ]; then \
+		cp ./docker/.env.example ./docker/.env; \
+	fi
