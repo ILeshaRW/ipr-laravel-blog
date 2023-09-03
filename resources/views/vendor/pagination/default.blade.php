@@ -3,7 +3,7 @@
         <div class="tm-prev-next-wrapper">
             <a href="{{ $paginator->previousPageUrl() }}" class="mb-2 tm-btn tm-btn-primary tm-prev-next {{ $paginator->onFirstPage() ? 'disabled' : '' }} tm-mr-20">Назад</a>
             @if ($paginator->hasMorePages())
-                <a href="{{ $paginator->nextPageUrl() }}" class="mb-2 tm-btn tm-btn-primary tm-prev-next">Next</a>
+                <a href="{{ $paginator->nextPageUrl() }}" class="mb-2 tm-btn tm-btn-primary tm-prev-next">Следующая</a>
             @else
                 <a href="#" class="mb-2 tm-btn tm-btn-primary tm-prev-next disabled">Следующая</a>
             @endif
