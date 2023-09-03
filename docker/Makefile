@@ -1,6 +1,6 @@
 # Makefile
 
-.PHONY: help prune up down shell migration migrate seed
+.PHONY: help prune up down shell migration migrate seed test migration-refresh composer
 .DEFAULT_GOAL := help
 
 __DIR__ := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
@@ -35,7 +35,11 @@ migrate: ## Запуск миграций
 seed: ## Популяция БД
 	@COMPOSE_INTERACTIVE_NO_CLI=1 '${DOCKER_COMPOSE}' exec php-fpm sh -c 'php artisan db:seed'
 
+test: ## Запуск тестов
+	@COMPOSE_INTERACTIVE_NO_CLI=1 '${DOCKER_COMPOSE}' exec php-fpm sh -c 'php artisan test'
+
 composer: ##Установка пакетов композера
 	@'${DOCKER_COMPOSE}' exec php-fpm composer install
+
 key: ##Создание ключа приложения
 	@'${DOCKER_COMPOSE}' exec php-fpm php artisan key:generate

@@ -7,6 +7,7 @@ use App\Http\Requests\Blog\Post\CreatePostRequest;
 use App\Http\Requests\Blog\Post\EditPostRequest;
 use App\Models\Post;
 use App\Repositories\Blog\PostRepository;
+use App\Services\Blog\PostService;
 use Auth;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Contracts\View\View;
@@ -19,7 +20,8 @@ class PostController extends Controller
 {
 
     public function __construct(
-       protected PostRepository $repository
+        protected PostRepository $repository,
+        protected PostService $service
     ){}
 
     /**
@@ -110,10 +112,7 @@ class PostController extends Controller
      */
     public function createPost(CreatePostRequest $request): RedirectResponse
     {
-        $post = $request->validated();
-        $post['user_id'] = $request->user()->id;
-
-        $post = Post::create($post);
+        $post = $this->service->create($request);
 
         return redirect()->route('edit_post_page', ['post' => $post->id]);
     }
