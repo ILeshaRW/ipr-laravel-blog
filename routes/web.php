@@ -85,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
  * | Верификация емайл
  * |
  */
-Route::view('/email/verify',  view('auth.verify-email'))
+Route::view('/email/verify',  'auth.verify-email')
     ->middleware('auth')
     ->name('verification.notice');
 
