@@ -21,20 +21,19 @@ class PostService
     /**
      * Создание поста, если у пользователя нет активных постов, то создает пост не активным
      *
-     * @param CreatePostRequest $request
+     * @param int $userId
+     * @param array $post
      * @return Post
      */
-    public function create(CreatePostRequest $request): Post
+    public function create(int $userId, array $post): Post
     {
-        $user = $request->user();
-        $userActivePosts = $this->repository->getPostsByUserIdPaginated($user->id, 1, true);
-        $post = $request->validated();
+        $userActivePosts = $this->repository->getPostsByUserIdPaginated($userId, 1, true);
 
         if ($userActivePosts->count() === 0) {
             $post['active'] = false;
         }
 
-        $post['user_id'] = $request->user()->id;
+        $post['user_id'] = $userId;
 
         return $this->repository->create($post);
     }
