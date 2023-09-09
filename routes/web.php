@@ -30,7 +30,9 @@ Route::get('/', function () {
  */
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('post/comment', [CommentController::class, 'createComment'])->name('create_comment');
-    Route::post('post/comment/{comment}', [CommentController::class, 'updateComment'])->name('update_comment');
+    Route::post('post/comment/{comment}', [CommentController::class, 'updateComment'])
+        ->name('update_comment')
+        ->can('update', 'comment');
     Route::delete('post/comment/{comment}', [CommentController::class, 'deleteComment'])
         ->name('delete_comment')
         ->middleware('can:delete,comment');
@@ -81,17 +83,15 @@ Route::middleware(['auth'])->group(function () {
 
 /*___________________________
  * | Верификация емайл
- * | //TODO перенести в контроллеры
+ * |
  */
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
+Route::view('/email/verify',  view('auth.verify-email'))
+    ->middleware('auth')
+    ->name('verification.notice');
 
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-
-    return redirect('/lk');
-})->middleware(['auth', 'signed'])->name('verification.verify');
+Route::get('/email/verify/{id}/{hash}', [UserController::class, 'verifyEmail'])
+    ->middleware(['auth', 'signed'])
+    ->name('verification.verify');
 
 /*_________________________________________
 * |
