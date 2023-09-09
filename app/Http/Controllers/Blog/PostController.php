@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Blog;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Blog\Post\CreatePostRequest;
 use App\Http\Requests\Blog\Post\EditPostRequest;
+use App\Http\Requests\Blog\Post\PostListRequest;
 use App\Models\Post;
 use App\Repositories\Blog\PostRepository;
 use App\Services\Blog\PostService;
-use Auth;
-use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -27,11 +27,12 @@ class PostController extends Controller
     /**
      * Получение постов с пагинацией
      *
+     * @param PostListRequest $request
      * @return View
      */
-    public function getPosts(): View
+    public function getPostsPaginated(PostListRequest $request): View
     {
-        $posts = $this->repository->getAllPostPagination();
+        $posts = $this->service->getPostsPaginated($request->page ?? 1);
 
         return view('blog.posts', ['posts' => $posts]);
     }
@@ -39,11 +40,12 @@ class PostController extends Controller
     /**
      * Получение постов пользователя
      *
+     * @param PostListRequest $request
      * @return View
      */
-    public function getMyPosts(): View
+    public function getUserPostsPaginated(PostListRequest $request): View
     {
-        $posts = $this->repository->getPostByUserId(Auth::id());
+        $posts = $this->service->getUserPostsPaginated(Auth::id(), $request->page ?? 1);
 
         return view('blog.posts', ['posts' => $posts]);
     }
@@ -56,29 +58,7 @@ class PostController extends Controller
      */
     public function getPostDetail(int $postId): View
     {
-        $post = Post::addSelect(['id', 'created_at', 'user_id', 'text', 'title'])
-            ->active()
-            ->with(
-                [
-                    'user' => function (Builder $query) {
-                        return $query->select('id', 'name', 'last_name');
-                    },
-                    'comments' => function (Builder $query) {
-                        return $query->select(['comment', 'id', 'user_id', 'post_id', 'created_at', 'updated_at'])
-                            ->with(
-                                [
-                                    'user' => function (Builder $query) {
-                                        return $query->select(['id', 'name', 'last_name']);
-                                    },
-                                    'post' => function (Builder $query) {
-                                        return $query->select('user_id', 'id');
-                                    },
-                                ]
-                            );
-                    },
-                ]
-            )
-            ->findOrFail($postId);
+        $post = $this->service->getPost($postId, Auth::id());
 
         return view('blog.post', ['post' => $post]);
     }
@@ -126,14 +106,18 @@ class PostController extends Controller
      */
     public function editPost(Post $post, EditPostRequest $request): RedirectResponse
     {
-        $post->update($request->validated());
+        $this->service->updatePost($post->id, $request->validated());
 
         return redirect()->route('edit_post_page', ['post' => $post->id]);
     }
 
+    /**
+     * @param Post $post
+     * @return RedirectResponse
+     */
     public function deletePost(Post $post): RedirectResponse
     {
-        $post->delete();
+        $this->service->deletePost($post->id);
 
         return redirect()->route('posts');
     }

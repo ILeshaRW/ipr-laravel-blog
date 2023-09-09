@@ -44,7 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('can:update,post');
     Route::delete('post/edit/{post}', [PostController::class, 'deletePost'])->name('delete_post')
         ->middleware('can:delete,post');
-    Route::get('posts/my', [PostController::class, 'getMyPosts'])->name('posts.my');
+    Route::get('posts/my', [PostController::class, 'getUserPostsPaginated'])->name('posts.my');
 });
 
 /*
@@ -54,7 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
  * |__________________
  */
 Route::get('post/{postId}', [PostController::class, 'getPostDetail'])->name('post')->where('postId', '[\d]+');
-Route::get('posts', [PostController::class, 'getPosts'])->name('posts');
+Route::get('posts', [PostController::class, 'getPostsPaginated'])->name('posts');
 
 /*
  * _____________________________

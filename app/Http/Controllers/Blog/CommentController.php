@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Blog\UpdateCommentRequest;
 use App\Http\Requests\Blog\CreateCommentRequest;
 use App\Models\Comment;
+use App\Services\Blog\CommentService;
 use Illuminate\Http\RedirectResponse;
 
 /**
@@ -13,6 +14,11 @@ use Illuminate\Http\RedirectResponse;
  */
 class CommentController extends Controller
 {
+
+    public function __construct(
+        protected CommentService $commentService
+    ){}
+
     /**
      * Создание комментария
      *
@@ -21,8 +27,9 @@ class CommentController extends Controller
      */
     public function createComment(CreateCommentRequest $request): RedirectResponse
     {
-        $request->merge(['user_id' => $request->user()->id]);
-        Comment::create($request->all());
+        $comment = $request->validated();
+        $comment['user_id'] = $request->user()->id;
+        $this->commentService->create($comment);
 
         return redirect()->route('post', ['postId' => $request->post_id]);
     }
@@ -35,9 +42,7 @@ class CommentController extends Controller
      */
     public function updateComment(UpdateCommentRequest $request, Comment $comment): RedirectResponse
     {
-        $comment->updateOrFail([
-            'comment' => $request->commentText,
-        ]);
+        $this->commentService->update($comment->id, ['comment' => $request->commentText]);
 
         return redirect()->route('post', ['postId' => $comment->post_id]);
     }
@@ -48,7 +53,7 @@ class CommentController extends Controller
      */
     public function deleteComment(Comment $comment): RedirectResponse
     {
-        $comment->delete();
+        $this->commentService->delete($comment->id);
 
         return redirect()->route('post', ['postId' => $comment->post_id]);
     }
