@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\User;
 use App\Repositories\Blog\PostRepository;
 use App\Services\Blog\PostService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
@@ -77,6 +78,64 @@ class PostServiceTest  extends TestCase
          * Проверка бесполезна, но в тесте проверяется, что мы передаем в репозиторий.
          */
         $this->assertFalse(false);
+    }
+
+    public function test_getPost_not_active_exception_guest()
+    {
+        $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => false]);
+        $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($post){
+            $mock->shouldReceive('getPost')
+                ->withArgs([1])
+                ->andReturn($post);
+        });
+
+        $postService = new PostService($repository);
+        $this->expectException(ModelNotFoundException::class);
+        $postService->getPost(1);
+    }
+
+    public function test_getPost_not_active_exception_auth()
+    {
+        $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => false]);
+        $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($post){
+            $mock->shouldReceive('getPost')
+                ->withArgs([1])
+                ->andReturn($post);
+        });
+
+        $postService = new PostService($repository);
+        $this->expectException(ModelNotFoundException::class);
+        $postService->getPost(1, 2);
+    }
+
+    public function test_getPost_active_auth()
+    {
+        $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => true]);
+        $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($post){
+            $mock->shouldReceive('getPost')
+                ->withArgs([1])
+                ->andReturn($post);
+        });
+
+        $postService = new PostService($repository);
+        $postService->getPost(1, 2);
+
+        $this->assertNull(null);
+    }
+
+    public function test_getPost_active_guest()
+    {
+        $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => true]);
+        $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($post){
+            $mock->shouldReceive('getPost')
+                ->withArgs([1])
+                ->andReturn($post);
+        });
+
+        $postService = new PostService($repository);
+        $postService->getPost(1);
+
+        $this->assertNull(null);
     }
 
     /**
