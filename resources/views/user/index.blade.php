@@ -4,5 +4,6 @@
 
 @section('content')
     <p>TODO</p>
+    <a href="{{ route('posts') }}">Посты</a> <br>
     <a href="/logout"> Выйти </a>
 @endsection
