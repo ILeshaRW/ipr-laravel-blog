@@ -92,7 +92,7 @@ class PostController extends Controller
      */
     public function createPost(CreatePostRequest $request): RedirectResponse
     {
-        $post = $this->service->create($request);
+        $post = $this->service->create(Auth::id(), $request->validated());
 
         return redirect()->route('edit_post_page', ['post' => $post->id]);
     }

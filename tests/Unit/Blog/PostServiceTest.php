@@ -13,6 +13,7 @@ use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Validator;
 use Mockery\MockInterface;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,29 +25,28 @@ class PostServiceTest  extends TestCase
      * Проверяет, если у пользователя есть посты, то создает пост активным
      *
      * @return void
+     * @throws Exception
      */
     public function test_user_create_active_post()
     {
         $request = $this->getRequest();
 
-        $postModel = new Post($request->validated());
+        $post = $request->validated();
+        $post['user_id'] = $request->user()->id;
 
-        $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($request, $postModel) {
-            $paginator = new LengthAwarePaginator(['test'], 1, 1);
-            $mock->shouldReceive('getPostsByUserIdPaginated')
-                ->withArgs([$request->user()->id, 1, true])
-                ->andReturn($paginator);
-            $post = $request->validated();
-            $post['user_id'] = $request->user()->id;
-            $mock->shouldReceive('create')->withArgs([$post])->andReturn($postModel);
-        });
+        $repository = $this->createMock(PostRepository::class);
+        $repository->expects($this->once())
+            ->method('getPostsByUserIdPaginated')
+            ->with($request->user()->id, 1, true)
+            ->willReturn(new LengthAwarePaginator(['t'], 1, 1));
+
+        $repository->expects($this->once())
+            ->method('create')
+            ->with($post)
+            ->willReturn(new Post($post));
 
         $service = new PostService($repository);
-
-        /**
-         * Проверка бесполезна, но в тесте проверяется, что мы передаем в репозиторий.
-         */
-        $this->assertNull(null);
+        $service->create($request->user()->id, $request->validated());
     }
 
     /**
@@ -58,26 +58,22 @@ class PostServiceTest  extends TestCase
     {
         $request = $this->getRequest();
 
-        $postModel = new Post($request->validated());
-        $postModel->active = false;
+        $post = $request->validated();
+        $post['user_id'] = $request->user()->id;
 
-        $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($request, $postModel) {
-            $paginator = new LengthAwarePaginator([], 0, 1);
-            $mock->shouldReceive('getPostsByUserIdPaginated')
-                ->withArgs([$request->user()->id, 1, true])
-                ->andReturn($paginator);
-            $post = $request->validated();
-            $post['user_id'] = $request->user()->id;
-            $post['active'] = false;
-            $mock->shouldReceive('create')->withArgs([$post])->andReturn($postModel);
-        });
+        $repository = $this->createMock(PostRepository::class);
+        $repository->expects($this->once())
+            ->method('getPostsByUserIdPaginated')
+            ->with($request->user()->id, 1, true)
+            ->willReturn(new LengthAwarePaginator([], 0, 1));
+
+        $repository->expects($this->once())
+            ->method('create')
+            ->with(array_merge($post, ['active' => false]))
+            ->willReturn(new Post($post));
 
         $service = new PostService($repository);
-
-        /**
-         * Проверка бесполезна, но в тесте проверяется, что мы передаем в репозиторий.
-         */
-        $this->assertFalse(false);
+        $service->create($request->user()->id, $post);
     }
 
     public function test_getPost_not_active_exception_guest()
@@ -97,11 +93,11 @@ class PostServiceTest  extends TestCase
     public function test_getPost_not_active_exception_auth()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => false]);
-        $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($post){
-            $mock->shouldReceive('getPost')
-                ->withArgs([1])
-                ->andReturn($post);
-        });
+        $repository = $this->getMockBuilder(PostRepository::class)->getMock();
+        $repository->expects($this->once())
+            ->method('getPost')
+            ->with(1)
+            ->willReturn($post);
 
         $postService = new PostService($repository);
         $this->expectException(ModelNotFoundException::class);
@@ -111,31 +107,29 @@ class PostServiceTest  extends TestCase
     public function test_getPost_active_auth()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => true]);
-        $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($post){
-            $mock->shouldReceive('getPost')
-                ->withArgs([1])
-                ->andReturn($post);
-        });
+        $repository = $this->createMock(PostRepository::class);
+
+        $repository->expects($this->once())
+            ->method('getPost')
+            ->with(1)
+            ->willReturn($post);
 
         $postService = new PostService($repository);
         $postService->getPost(1, 2);
-
-        $this->assertNull(null);
     }
 
     public function test_getPost_active_guest()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => true]);
-        $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($post){
-            $mock->shouldReceive('getPost')
-                ->withArgs([1])
-                ->andReturn($post);
-        });
+        $repository = $this->createMock(PostRepository::class);
+
+        $repository->expects($this->once())
+            ->method('getPost')
+            ->with(1)
+            ->willReturn($post);
 
         $postService = new PostService($repository);
         $postService->getPost(1);
-
-        $this->assertNull(null);
     }
 
     /**
