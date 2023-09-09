@@ -4,18 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\AuthRequest;
 use App\Http\Requests\User\RegisterRequest;
-use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 /**
  * Контроллер для работы с пользователями
  */
 class UserController extends Controller
 {
+
+    public function __construct(protected UserService $service)
+    {}
 
     /**
      * Страница регистрации
@@ -35,17 +38,13 @@ class UserController extends Controller
      */
     public function create(RegisterRequest $request): RedirectResponse
     {
-        $user = User::create([
-            'name' => $request->name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $user = $this->service->create($request->validated());
 
         event(new Registered($user));
+        Auth::login($user);
 
         return redirect()
-            ->route('login');
+            ->route('index');
     }
 
     /**
@@ -98,5 +97,12 @@ class UserController extends Controller
         Auth::logout();
 
         return redirect()->route('login');
+    }
+
+    public function verifyEmail (EmailVerificationRequest $request): RedirectResponse
+    {
+        $request->fulfill();
+
+        return redirect('/lk');
     }
 }

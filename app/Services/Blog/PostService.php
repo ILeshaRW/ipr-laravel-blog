@@ -5,6 +5,9 @@ namespace App\Services\Blog;
 use App\Http\Requests\Blog\Post\CreatePostRequest;
 use App\Models\Post;
 use App\Repositories\Blog\PostRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Логика постов
@@ -24,7 +27,7 @@ class PostService
     public function create(CreatePostRequest $request): Post
     {
         $user = $request->user();
-        $userActivePosts = $this->repository->getPostByUserId($user->id, true);
+        $userActivePosts = $this->repository->getPostsByUserIdPaginated($user->id, 1, true);
         $post = $request->validated();
 
         if ($userActivePosts->count() === 0) {
@@ -34,5 +37,63 @@ class PostService
         $post['user_id'] = $request->user()->id;
 
         return $this->repository->create($post);
+    }
+
+    /**
+     * @param int $page
+     * @return LengthAwarePaginator
+     */
+    public function getPostsPaginated(int $page): LengthAwarePaginator
+    {
+        return $this->repository->getPostsPaginated($page);
+    }
+
+    /**
+     * @param int $userId
+     * @param int $page
+     * @return LengthAwarePaginator
+     */
+    public function getUserPostsPaginated(int $userId, int $page): LengthAwarePaginator
+    {
+        return $this->repository->getPostsByUserIdPaginated($userId, $page);
+    }
+
+    /**
+     * Получает пост, если пост неактивен и не создан пользователем, то выдает исключение ModelNotFoundException
+     *
+     * @param int $postId
+     * @param int|null $userId
+     * @return Post
+     */
+    public function getPost(int $postId, ?int $userId = null): Post
+    {
+        $post = $this->repository->getPost($postId);
+
+        if (!$post->active
+            && $post->user_id !== $userId
+        ) {
+            throw new ModelNotFoundException();
+        }
+
+        return $post;
+    }
+
+    /**
+     * @param int $id
+     * @param array $post
+     * @return void
+     */
+    public function updatePost(int $id, array $post): void
+    {
+        $this->repository->update($id, $post);
+    }
+
+    /**
+     * @param int $id
+     * @return void
+     */
+    public function deletePost(int $id): void
+    {
+        $this->repository->delete($id);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Blog;
+namespace Tests\Feature\Http\Controllers\Blog;
 
 use App\Models\Post;
 use App\Models\User;
@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
-class PostTest extends TestCase
+class PostControllerTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -41,7 +41,7 @@ class PostTest extends TestCase
      *
      * @return void
      */
-    public function test_create_post_success(): void
+    public function test_create_success(): void
     {
         Notification::fake();
         $user = User::factory()->create();
@@ -62,7 +62,7 @@ class PostTest extends TestCase
      * @return void
      * @throws \Exception
      */
-    public function test_create_post_fail(): void
+    public function test_create_fail(): void
     {
         Notification::fake();
         $user = User::factory()->create();
@@ -78,7 +78,7 @@ class PostTest extends TestCase
     /**
      * Тест успешного обновления поста
      */
-    public function test_update_post_success(): void
+    public function test_update_success(): void
     {
         $postArray = ['title' => 'test', 'preview_text' => 'test', 'text' => 'testtesttest'];
         $user = User::withoutEvents(fn() => User::factory()->create());
@@ -99,7 +99,7 @@ class PostTest extends TestCase
      *
      * @return void
      */
-    public function test_update_post_fail(): void
+    public function test_update_fail(): void
     {
         $user = User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -115,7 +115,7 @@ class PostTest extends TestCase
     /**
      * Тест страницы обновления поста не авторизованным пользователем
      */
-    public function test_update_post_auth_fail(): void
+    public function test_update_auth_fail(): void
     {
         User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -130,7 +130,7 @@ class PostTest extends TestCase
     /**
      * Тест страницы обновления поста не авторизованным пользователем
      */
-    public function test_create_post_auth_fail(): void
+    public function test_create_auth_fail(): void
     {
         Notification::fake();
         $user = User::withoutEvents(fn() => User::factory()->create());
@@ -148,7 +148,7 @@ class PostTest extends TestCase
      *
      * @return void
      */
-    public function test_create_post_successful_response(): void
+    public function test_create_successful_response(): void
     {
         $user = User::withoutEvents(fn() => User::factory()->create());
         $this->actingAs($user);
@@ -162,7 +162,7 @@ class PostTest extends TestCase
      *
      * @return void
      */
-    public function test_create_post_fail_access_response(): void
+    public function test_create_fail_access_response(): void
     {
         $this->get('post/create')
             ->assertRedirectToRoute('login');
@@ -173,7 +173,7 @@ class PostTest extends TestCase
      *
      * @return void
      */
-    public function test_edit_post_successful_response(): void
+    public function test_edit_successful_response(): void
     {
         $user = User::withoutEvents(fn() => User::factory()->create());
         $this->actingAs($user);
@@ -187,7 +187,7 @@ class PostTest extends TestCase
      *
      * @return void
      */
-    public function test_edit_post_fail_access_response(): void
+    public function test_edit_fail_access_response(): void
     {
         User::withoutEvents(fn() => User::factory()->create());
 
@@ -201,7 +201,7 @@ class PostTest extends TestCase
      * @return void
      * @throws \JsonException
      */
-    public function test_delete_post_successful(): void
+    public function test_delete_successful(): void
     {
         $user = User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -219,7 +219,7 @@ class PostTest extends TestCase
      * @return void
      * @throws \JsonException
      */
-    public function test_delete_post_auth_fail(): void
+    public function test_delete_auth_fail(): void
     {
         User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -236,7 +236,7 @@ class PostTest extends TestCase
      *
      * @return void
      */
-    public function test_delete_post_another_user_fail(): void
+    public function test_delete_another_user_fail(): void
     {
         User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Blog;
+namespace Tests\Feature\Http\Controllers\Blog;
 
 use App\Models\Comment;
 use App\Models\Post;
@@ -10,10 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
-/**
- * Тест функционала комментариев
- */
-class CommentTest extends TestCase
+class CommentControllerTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -23,7 +20,7 @@ class CommentTest extends TestCase
      * @return void
      * @throws \JsonException
      */
-    public function test_create_comment_successful(): void
+    public function test_create_successful(): void
     {
         Notification::fake();
         $user = User::factory()->create();
@@ -42,7 +39,7 @@ class CommentTest extends TestCase
      *
      * @return void
      */
-    public function test_create_comment_auth_fail(): void
+    public function test_create_auth_fail(): void
     {
         Notification::fake();
         $user = User::factory()->create();
@@ -60,7 +57,7 @@ class CommentTest extends TestCase
      *
      * @return void
      */
-    public function test_create_comment_validation_fail(): void
+    public function test_create_validation_fail(): void
     {
         Notification::fake();
         $user = User::factory()->create();
@@ -79,7 +76,7 @@ class CommentTest extends TestCase
      *
      * @return void
      */
-    public function test_update_comment_another_user_fail(): void
+    public function test_update_another_user_fail(): void
     {
         User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -112,7 +109,7 @@ class CommentTest extends TestCase
      * @return void
      * @throws \JsonException
      */
-    public function test_update_comment_successful(): void
+    public function test_update_successful(): void
     {
         $userCreator = User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -143,7 +140,7 @@ class CommentTest extends TestCase
      * @return void
      * @throws \JsonException
      */
-    public function test_delete_comment_successful(): void
+    public function test_delete_successful(): void
     {
         $userCreator = User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -171,7 +168,7 @@ class CommentTest extends TestCase
      * @return void
      * @throws \JsonException
      */
-    public function test_delete_comment_auth_fail(): void
+    public function test_delete_auth_fail(): void
     {
         User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -197,7 +194,7 @@ class CommentTest extends TestCase
      *
      * @return void
      */
-    public function test_delete_comment_another_user_fail(): void
+    public function test_delete_another_user_fail(): void
     {
         User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -226,7 +223,7 @@ class CommentTest extends TestCase
      * @return void
      * @throws \JsonException
      */
-    public function test_delete_comment_post_creator_user_successful(): void
+    public function test_delete_post_creator_user_successful(): void
     {
         $user = User::withoutEvents(fn() => User::factory()->create());
         $post = Post::withoutEvents(fn() => Post::factory()->create());
@@ -247,4 +244,5 @@ class CommentTest extends TestCase
         $response->assertRedirectToRoute('post', [$post])->assertSessionHasNoErrors();
         $this->assertModelMissing($comment);
     }
+
 }

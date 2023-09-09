@@ -105,7 +105,7 @@ class UserTest extends TestCase
             ]
         )
             ->assertSessionHasNoErrors()
-            ->assertRedirectToRoute('login');
+            ->assertRedirectToRoute('index');
 
         Notification::assertSentTo(User::first(), Register::class);
     }
