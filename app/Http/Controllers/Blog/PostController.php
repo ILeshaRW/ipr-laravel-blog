@@ -7,7 +7,6 @@ use App\Http\Requests\Blog\Post\CreatePostRequest;
 use App\Http\Requests\Blog\Post\EditPostRequest;
 use App\Http\Requests\Blog\Post\PostListRequest;
 use App\Models\Post;
-use App\Repositories\Blog\PostRepository;
 use App\Services\Blog\PostService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\View\View;
@@ -18,9 +17,7 @@ use Illuminate\Http\RedirectResponse;
  */
 class PostController extends Controller
 {
-
     public function __construct(
-        protected PostRepository $repository,
         protected PostService $service
     ){}
 

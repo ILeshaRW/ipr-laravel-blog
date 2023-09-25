@@ -2,12 +2,10 @@
 
 namespace App\Services\Blog;
 
-use App\Http\Requests\Blog\Post\CreatePostRequest;
 use App\Models\Post;
 use App\Repositories\Blog\PostRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Логика постов
