@@ -27,7 +27,7 @@ class PostServiceTest  extends TestCase
      * @return void
      * @throws Exception
      */
-    public function test_user_create_active_post()
+    public function test_create_active_post()
     {
         $request = $this->getRequest();
 
@@ -55,7 +55,7 @@ class PostServiceTest  extends TestCase
      * @return void
      * @throws Exception
      */
-    public function test_user_create_no_active_post()
+    public function test_create_not_active_post()
     {
         $request = $this->getRequest();
 
@@ -77,6 +77,11 @@ class PostServiceTest  extends TestCase
         $service->create($request->user()->id, $post);
     }
 
+    /**
+     * получение неактивных постов гостем, проверка получения исключения
+     *
+     * @return void
+     */
     public function test_getPost_not_active_exception_guest()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => false]);
@@ -91,6 +96,11 @@ class PostServiceTest  extends TestCase
         $postService->getPost(1);
     }
 
+    /**
+     * Получение неактивных постов пользователем, проверка получения исключения.
+     *
+     * @return void
+     */
     public function test_getPost_not_active_exception_auth()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => false]);
@@ -105,6 +115,12 @@ class PostServiceTest  extends TestCase
         $postService->getPost(1, 2);
     }
 
+    /**
+     * получение активного поста пользователем
+     *
+     * @return void
+     * @throws Exception
+     */
     public function test_getPost_active_auth()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => true]);
@@ -119,6 +135,12 @@ class PostServiceTest  extends TestCase
         $postService->getPost(1, 2);
     }
 
+    /**
+     * получение активного поста гостем
+     *
+     * @return void
+     * @throws Exception
+     */
     public function test_getPost_active_guest()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => true]);
