@@ -82,7 +82,7 @@ class PostServiceTest  extends TestCase
      *
      * @return void
      */
-    public function test_getPost_not_active_exception_guest()
+    public function test_getPost_not_active_fail_guest()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => false]);
         $repository = \Mockery::mock(PostRepository::class, function  (MockInterface $mock) use ($post){
@@ -101,7 +101,7 @@ class PostServiceTest  extends TestCase
      *
      * @return void
      */
-    public function test_getPost_not_active_exception_auth()
+    public function test_getPost_not_active_fail_auth()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => false]);
         $repository = $this->getMockBuilder(PostRepository::class)->getMock();
@@ -121,7 +121,7 @@ class PostServiceTest  extends TestCase
      * @return void
      * @throws Exception
      */
-    public function test_getPost_active_auth()
+    public function test_get_active_post_auth_success()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => true]);
         $repository = $this->createMock(PostRepository::class);
@@ -141,7 +141,7 @@ class PostServiceTest  extends TestCase
      * @return void
      * @throws Exception
      */
-    public function test_getPost_active_guest()
+    public function test_get_active_post_guest_success()
     {
         $post = new Post(['title' => 't', 'text' => 't', 'preview_text' => 't', 'user_id' => 1, 'active' => true]);
         $repository = $this->createMock(PostRepository::class);
